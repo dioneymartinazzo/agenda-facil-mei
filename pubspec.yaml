@@ -1,18 +1,33 @@
-name: agenda_facil_mei_github
-description: Agenda Facil MEI - base foto 07h com financeiro
-publish_to: 'none'
-version: 1.0.0+1
-environment:
-  sdk: '>=3.4.0 <4.0.0'
-dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^1.0.8
-  provider: ^6.1.2
-  shared_preferences: ^2.3.2
-  intl: ^0.19.0
-  url_launcher: ^6.2.5
-  share_plus: ^9.0.0
-  path_provider: ^2.1.2
-flutter:
-  uses-material-design: true
+name: Build APK
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.22.2'
+          cache: true
+      
+      - name: Pub get
+        run: flutter pub get
+      
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: agenda-facil-mei-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
